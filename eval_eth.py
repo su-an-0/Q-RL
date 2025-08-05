@@ -110,6 +110,9 @@ loss_fn_used = 'KL Div Loss'
 optimizer_used = 'RMSProp'
 
 dqn_agent = DQN(state_size, action_size, lr, gamma, num_layers, num_heads, optimizer_type='AdamW')
+if dqn_agent.device.type != 'cuda':
+    print('***** 未检测到GPU *****')
+    exit(0)
 print(f'运行设备: {dqn_agent.device.type.upper()}')
 
 # 加载模型检查点

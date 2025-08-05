@@ -1,4 +1,11 @@
 import os
+
+# 获取当前目录下的所有文件和文件夹名称
+current_dir_contents = os.listdir('.')
+
+# 打印所有内容
+for item in current_dir_contents:
+    print(item)
 import time
 from tqdm import tqdm  # 导入进度条库
 from pre_processing import processed_data_dict

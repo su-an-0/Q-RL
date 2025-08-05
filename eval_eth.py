@@ -144,57 +144,52 @@ total_reward = 0
 
 # ********** 核心修改：添加总进度条 **********
 # 创建总训练轮次的进度条，显示episode进度
-with tqdm(total=num_episodes - start_episode, desc="总训练进度", unit="episode") as pbar_total:
+
     # 开始训练循环
-    for episode in range(start_episode, num_episodes):
-        state = env.reset()
-        done = False
-        episode_reward = 0
-        profit = 0
-        epsilon = max(min_exploration, initial_exploration * (exploration_decay ** episode))
-        count = 0
+for episode in range(start_episode, num_episodes):
+    state = env.reset()
+    done = False
+    episode_reward = 0
+    profit = 0
+    epsilon = max(min_exploration, initial_exploration * (exploration_decay ** episode))
+    count = 0
 
-        # ********** 核心修改：添加单轮episode进度条 **********
-        # 估算单轮最大步数（使用训练集长度），提升进度条准确性
-        max_steps = len(df_eth_train)
-        while not done:
-            action = dqn_agent.decide_action(state, epsilon)
-            next_state, reward, done, labels = env.step(action)
-            dqn_agent.remember(state, action, reward, next_state, done, labels)
-            dqn_agent.train(state, action, reward, next_state, done, labels, count)
-            episode_reward += reward
-            state = next_state
-            count += 1
-                
-            # 防止无限循环（极端情况保护）
-            if count >= max_steps:
-                break
+    # ********** 核心修改：添加单轮episode进度条 **********
+    # 估算单轮最大步数（使用训练集长度），提升进度条准确性
+    max_steps = len(df_eth_train)
+    while not done:
+        action = dqn_agent.decide_action(state, epsilon)
+        next_state, reward, done, labels = env.step(action)
+        dqn_agent.remember(state, action, reward, next_state, done, labels)
+        dqn_agent.train(state, action, reward, next_state, done, labels, count)
+        episode_reward += reward
+        state = next_state
+        count += 1
+            
+        # 防止无限循环（极端情况保护）
+        if count >= max_steps:
+            break
 
-        # 更新目标网络
-        if episode % target_update_frequency == 0:
-            dqn_agent.update_target_network()
+    # 更新目标网络
+    if episode % target_update_frequency == 0:
+        dqn_agent.update_target_network()
 
-        # 保存模型
-        if episode % 10 == 0:
-            print('***** 保存模型 *****')
-            os.makedirs(CHECKPOINTS_DIR, exist_ok=True)
-            torch.save(dqn_agent.q_network.state_dict(), f'{CHECKPOINTS_DIR}/checkpoint_{episode}.pth')
-            print('***** 模型保存完成 *****')
-        
-        # 记录训练指标
-        total_reward += episode_reward
-        avg_reward.append(total_reward)
-        loss.append(np.mean(dqn_agent.loss) if dqn_agent.loss else 0)
-        mean_acc = np.mean(dqn_agent.accuracy) if dqn_agent.accuracy else 0
-        accuracy.append(mean_acc)
-        
-        # 更新总进度条信息
-        pbar_total.update(1)
-        pbar_total.set_postfix({
-            "累计奖励": f"{total_reward:.2f}",
-            "平均准确率": f"{mean_acc*100:.2f}%",
-            "当前损失": f"{loss[-1]:.6f}"
-        })
+    print(f'Episode {episode + 1}/{num_episodes} - Reward: {episode_reward:.2f}, Epsilon: {epsilon:.4f}, Steps: {count}, reward: {episode_reward:.2f},loss: {np.mean(dqn_agent.loss) if dqn_agent.loss else 0:.4f}, accuracy: {np.mean(dqn_agent.accuracy) if dqn_agent.accuracy else 0:.4f}')
+    # 保存模型
+    if episode % 10 == 0:
+        print('***** 保存模型 *****')
+        os.makedirs(CHECKPOINTS_DIR, exist_ok=True)
+        torch.save(dqn_agent.q_network.state_dict(), f'{CHECKPOINTS_DIR}/checkpoint_{episode}.pth')
+        print('***** 模型保存完成 *****')
+    
+    
+    # 记录训练指标
+    total_reward += episode_reward
+    avg_reward.append(total_reward)
+    loss.append(np.mean(dqn_agent.loss) if dqn_agent.loss else 0)
+    mean_acc = np.mean(dqn_agent.accuracy) if dqn_agent.accuracy else 0
+    accuracy.append(mean_acc)
+    
 
 # 训练结果统计
 average_reward = total_reward / num_episodes

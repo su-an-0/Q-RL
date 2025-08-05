@@ -5,7 +5,7 @@ TSLA_PATH = "./Dataset/TSLA.csv"
 GOOG_PATH = "./Dataset/GOOG.csv"
 MSFT_PATH = "./Dataset/MSFT.csv"
 AMZN_PATH = "./Dataset/AMZN.csv"
-ETH_PATH = "/mnt/data/ethusdt_15m.parquet"
+ETH_PATH = "/root/code/Q-RL/Dataset/ethusdt_15m.parquet"
 
 
 # Apple stock's pre processing

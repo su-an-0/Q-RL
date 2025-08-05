@@ -174,3 +174,4 @@ wsproto==1.2.0
 xgboost==2.0.1
 xvfbwrapper==0.2.9
 yarl==1.9.2
+matplotlib==3.10.3

@@ -157,24 +157,18 @@ with tqdm(total=num_episodes - start_episode, desc="总训练进度", unit="epis
         # ********** 核心修改：添加单轮episode进度条 **********
         # 估算单轮最大步数（使用训练集长度），提升进度条准确性
         max_steps = len(df_eth_train)
-        with tqdm(total=max_steps, desc=f"Episode {episode+1}/{num_episodes}", unit="step", leave=False) as pbar_step:
-            while not done:
-                action = dqn_agent.decide_action(state, epsilon)
-                next_state, reward, done, labels = env.step(action)
-                dqn_agent.remember(state, action, reward, next_state, done, labels)
-                dqn_agent.train(state, action, reward, next_state, done, labels, count)
-                episode_reward += reward
-                state = next_state
-                count += 1
+        while not done:
+            action = dqn_agent.decide_action(state, epsilon)
+            next_state, reward, done, labels = env.step(action)
+            dqn_agent.remember(state, action, reward, next_state, done, labels)
+            dqn_agent.train(state, action, reward, next_state, done, labels, count)
+            episode_reward += reward
+            state = next_state
+            count += 1
                 
-                # 更新单步进度条
-                pbar_step.update(1)
-                # 实时显示单轮奖励
-                pbar_step.set_postfix({"当前奖励": f"{episode_reward:.2f}", "当前损失": f"{np.mean(dqn_agent.loss) if dqn_agent.loss else 0:.6f}"})
-                
-                # 防止无限循环（极端情况保护）
-                if count >= max_steps:
-                    break
+            # 防止无限循环（极端情况保护）
+            if count >= max_steps:
+                break
 
         # 更新目标网络
         if episode % target_update_frequency == 0:

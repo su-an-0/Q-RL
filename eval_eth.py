@@ -1,11 +1,4 @@
 import os
-
-# 获取当前目录下的所有文件和文件夹名称
-current_dir_contents = os.listdir('.')
-
-# 打印所有内容
-for item in current_dir_contents:
-    print(item)
 import time
 from tqdm import tqdm  # 导入进度条库
 from pre_processing import processed_data_dict
@@ -110,7 +103,11 @@ loss_fn_used = 'KL Div Loss'
 optimizer_used = 'RMSProp'
 
 dqn_agent = DQN(state_size, action_size, lr, gamma, num_layers, num_heads, optimizer_type='AdamW')
+print(torch.__version__)
+print(torch.version.cuda)
 if dqn_agent.device.type != 'cuda':
+    print(torch.__version__)
+    print(torch.version.cuda)
     print('***** 未检测到GPU *****')
     exit(0)
 print(f'运行设备: {dqn_agent.device.type.upper()}')
